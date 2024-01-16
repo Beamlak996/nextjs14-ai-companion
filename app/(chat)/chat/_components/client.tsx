@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 import { useCompletion } from "ai/react"
 import { ChatForm } from "@/components/chat-form";
+import { ChatMessages } from "@/components/chat-messages";
+import { ChatMessageProps } from "@/components/chat-message";
 
 type ChatClientProps = {
   companion: Companion & {
@@ -17,7 +19,7 @@ type ChatClientProps = {
 };
 
 export const ChatClient = ({ companion }: ChatClientProps) => {
-  const [messages, setMessages] = useState<any[]>(companion.messages) 
+  const [messages, setMessages] = useState<ChatMessageProps[]>(companion.messages) 
 
   const router = useRouter()
 
@@ -25,7 +27,7 @@ export const ChatClient = ({ companion }: ChatClientProps) => {
     useCompletion({
       api: `/api/chat/${companion.id}`,
       onFinish(_prompt, completion) {
-        const systemMessage = {
+        const systemMessage: ChatMessageProps = {
           role: "system",
           content: completion,
         };
@@ -38,7 +40,7 @@ export const ChatClient = ({ companion }: ChatClientProps) => {
     });
 
     const onSubmit = (e: FormEvent<HTMLFormElement>) => {
-      const userMessage = {
+      const userMessage: ChatMessageProps = {
         role: "user",
         content: input,
       };
@@ -51,9 +53,11 @@ export const ChatClient = ({ companion }: ChatClientProps) => {
   return (
     <div className="flex flex-col h-full p-4 space-y-2">
       <ChatHeader companion={companion} />
-      <div>
-        Messages TODO
-      </div>
+      <ChatMessages 
+        companion={companion}
+        isLoading={isLoading}
+        messages={messages}
+      />
       <ChatForm 
         isLoading={isLoading}
         input={input}
